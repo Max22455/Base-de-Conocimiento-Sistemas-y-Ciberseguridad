@@ -8,7 +8,7 @@ Este repositorio contiene mis apuntes personales, hojas de trucos (*cheat sheets
 
 ### Solución de Integración en VMware (Portapapeles y Ratón)
 Para habilitar copiar/pegar entre Windows y Kali Linux, y evitar que el cursor se quede atrapado, se requiere instalar los controladores gráficos de VMware y configurar el aislamiento.
-```bash
+
 # 1. Instalar el paquete de integración
 sudo apt update && sudo apt install -y open-vm-tools-desktop
 
@@ -19,15 +19,15 @@ Nota: Si las opciones "Guest Isolation" están en gris en VMware, apaga la máqu
 Configuración del Idioma del Sistema (Locales)
 Para corregir problemas de codificación de caracteres en la terminal:
 
+Bash
 sudo dpkg-reconfigure locales
-
 Seleccionar con [Espacio] la opción: es_ES.UTF-8 UTF-8 y pulsar Enter.
 
 Gestión del Archivo Hosts
 Para resolver dominios locales en laboratorios CTF sin servidor DNS:
 
+Bash
 echo "10.129.244.96  facts.htb" | sudo tee -a /etc/hosts
-
 🐧 2. Cheat Sheet: Comandos Esenciales de Linux
 Navegación y Gestión de Archivos
 pwd : Muestra la ruta del directorio actual.
@@ -73,12 +73,12 @@ nslookup [IP/Dominio] : Consultas al servidor DNS para resolver IPs o dominios.
 
 🕵️‍♂️ 3. Hacking y Reconocimiento (Herramientas)
 Nmap: Manual de Supervivencia
+Bash
 nmap [IP]             # Escaneo rápido de los 1000 puertos comunes.
 nmap -Pn [IP]         # Salta el bloqueo de Ping (Host Discovery).
 nmap -sV [IP]         # Detección exacta de versiones de servicios.
 sudo nmap -sS [IP]    # Escaneo sigiloso (Stealth SYN Scan).
 sudo nmap -A [IP]     # Escaneo agresivo (SO, versiones, traceroute, scripts).
-
 Kit de Herramientas de Análisis (Estilo Bandit / Reversing)
 file [archivo] : Identifica el tipo real de un archivo (binario, texto, compresión).
 
@@ -119,8 +119,8 @@ Dancing (SMB - Puerto 445): Enumeración de recursos con smbclient -L y acceso a
 💉 Cheat Sheet: SQL Injection Básica
 Fase de descubrimiento:
 
+Bash
 gobuster dir -u http://[IP] -w [wordlist]
-
 Bypass de Login (Usernames válidos):
 
 admin' or 1=1-- - (Estándar)
