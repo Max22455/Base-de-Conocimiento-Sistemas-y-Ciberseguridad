@@ -1,40 +1,128 @@
-# 🛠️ Laboratorio de Troubleshooting y Hacking (VMware & Kali Linux)
+# 📚 Base de Conocimiento: Sistemas, Redes y Ciberseguridad
 
-Este repositorio contiene documentación técnica sobre problemas reales resueltos durante la configuración de entornos virtualizados (VMware) y notas de intrusión en máquinas de entrenamiento (Hack The Box / DockerLabs). Todo el contenido está enfocado en la resolución de incidencias (HelpDesk / SysAdmin) y en prácticas controladas de ciberseguridad.
+Este repositorio contiene mis apuntes personales, hojas de trucos (*cheat sheets*) y resoluciones de máquinas (*Writeups*) en plataformas como Hack The Box y DockerLabs. Documento mi aprendizaje continuo para agilizar futuras auditorías y tareas de administración de sistemas.
 
 ---
 
-## 🛑 Troubleshooting en VMware Workstation Player
+## 🛠️ 1. Troubleshooting y Administración Linux
 
-### Incidencia 1: Error al intentar ejecutar una máquina virtual de Kali Linux descargada
-**Síntoma:** Al intentar abrir el archivo descargado (`kali-linux-2025.4-vmware-amd64.7z`) directamente en VMware, o al extraerlo e intentar ejecutar un archivo `.vmdk`, VMware muestra una pantalla en negro o lanza un error de incompatibilidad.
-**Causa:**
-1. Intentar cargar el archivo directamente desde un formato comprimido (`.7z`).
-2. Confundir los discos virtuales duros (`.vmdk`) con el archivo de configuración de la máquina (`.vmx`).
+### Solución de Integración en VMware (Portapapeles y Ratón)
+Para habilitar copiar/pegar entre Windows y Kali Linux, y evitar que el cursor se quede atrapado, se requiere instalar los controladores gráficos de VMware y configurar el aislamiento.
+```bash
+# 1. Instalar el paquete de integración
+sudo apt update && sudo apt install -y open-vm-tools-desktop
 
-**Solución aplicada:**
-1. Descomprimir por completo el archivo `.7z` usando una herramienta como 7-Zip para extraer la carpeta con todos los componentes de la máquina virtual.
-2. Abrir **VMware Workstation Player** desde Windows (el sistema anfitrión).
-3. Seleccionar la opción `Open a Virtual Machine`.
-4. Navegar hasta la carpeta descomprimida y seleccionar **exclusivamente el archivo con extensión `.vmx`** (el archivo de configuración).
-5. Iniciar la máquina desde la lista principal del programa.
+# 2. Reiniciar el servicio de integración
+sudo systemctl restart open-vm-tools
+Nota: Si las opciones "Guest Isolation" están en gris en VMware, apaga la máquina, entra en Settings > Options > Guest Isolation y marca Enable copy and paste.
 
-### Incidencia 2: La máquina virtual se queda "congelada" o no inicia (Archivos `.lck`)
-**Síntoma:** Una máquina virtual (nodo) no responde, no arranca, o muestra un error indicando que está en uso, generalmente después de un cierre inesperado.
-**Causa:** VMware crea archivos/carpetas de bloqueo temporal (cerrojos) con la extensión `.lck` para evitar que dos procesos modifiquen la misma máquina a la vez. Si el programa se cierra mal, estos archivos no se eliminan automáticamente.
+Configuración del Idioma del Sistema (Locales)
+Para corregir problemas de codificación de caracteres en la terminal:
 
-**Solución aplicada:**
-1. Forzar el cierre de cualquier proceso de VMware residual desde el Administrador de Tareas de Windows (buscar `vmware.exe`).
-2. Acceder a la ruta física donde está guardada la máquina virtual.
-3. Localizar y eliminar manualmente los archivos o carpetas que terminen en `.lck`.
-4. Reiniciar VMware y encender la máquina virtual con normalidad.
+sudo dpkg-reconfigure locales
 
-### Incidencia 3: El cursor del ratón se queda atrapado y no funciona el portapapeles (Copy/Paste)
-**Síntoma:** Al hacer clic dentro de la máquina virtual de Kali Linux, el ratón no puede salir de la ventana hacia Windows, y la opción de copiar y pegar texto entre el anfitrión y el invitado está desactivada.
-**Causa:** Faltan las herramientas de integración del sistema invitado (VMware Tools) o el servicio que las gestiona no está activo.
+Seleccionar con [Espacio] la opción: es_ES.UTF-8 UTF-8 y pulsar Enter.
 
-**Solución aplicada:**
-1. Para liberar el ratón temporalmente, utilizar el atajo de teclado: `Ctrl + Alt`.
-2. Desde una terminal dentro de Kali Linux, instalar el paquete de integración gráfico:
-   ```bash
-   sudo apt update && sudo apt install -y open-vm-tools-desktop
+Gestión del Archivo Hosts
+Para resolver dominios locales en laboratorios CTF sin servidor DNS:
+
+echo "10.129.244.96  facts.htb" | sudo tee -a /etc/hosts
+
+🐧 2. Cheat Sheet: Comandos Esenciales de Linux
+Navegación y Gestión de Archivos
+pwd : Muestra la ruta del directorio actual.
+
+ls -la : Lista todos los archivos (incluyendo ocultos) con detalles de permisos.
+
+tree : Muestra la estructura de directorios en forma de árbol.
+
+cp [archivo] / mv [archivo] [nuevo_nombre] : Copiar / Mover o renombrar archivos.
+
+rm -r [directorio] : Eliminar un directorio y su contenido.
+
+cat [archivo] : Muestra el contenido de un archivo de texto.
+
+Búsqueda y Filtrado (find y grep)
+which [comando] : Muestra la ubicación del binario de una aplicación.
+
+find /etc -type f -name apache2 : Busca un archivo específico en una ruta.
+
+ls -l | grep .png : Filtra la salida para mostrar solo imágenes PNG.
+
+grep -r "password" /etc/ : Busca recursivamente la palabra "password" dentro de todos los archivos en /etc/.
+
+Gestión de Procesos y Usuarios
+whoami : Muestra el usuario actual.
+
+w : Muestra los usuarios conectados y qué están haciendo.
+
+ps -aux : Lista absolutamente todos los procesos del sistema con detalles de usuario.
+
+ps -u [usuario] : Lista los procesos de un usuario específico.
+
+kill -9 [PID] / pkill [nombre_proceso] : Fuerza el cierre de un proceso por su ID o por su nombre.
+
+Redes (Networking Básica)
+ifconfig : Información de las interfaces de red.
+
+ping [IP/Dominio] : Comprueba la conectividad con un host.
+
+netstat -a : Muestra los servicios, puertos abiertos y conexiones activas.
+
+nslookup [IP/Dominio] : Consultas al servidor DNS para resolver IPs o dominios.
+
+🕵️‍♂️ 3. Hacking y Reconocimiento (Herramientas)
+Nmap: Manual de Supervivencia
+nmap [IP]             # Escaneo rápido de los 1000 puertos comunes.
+nmap -Pn [IP]         # Salta el bloqueo de Ping (Host Discovery).
+nmap -sV [IP]         # Detección exacta de versiones de servicios.
+sudo nmap -sS [IP]    # Escaneo sigiloso (Stealth SYN Scan).
+sudo nmap -A [IP]     # Escaneo agresivo (SO, versiones, traceroute, scripts).
+
+Kit de Herramientas de Análisis (Estilo Bandit / Reversing)
+file [archivo] : Identifica el tipo real de un archivo (binario, texto, compresión).
+
+strings [archivo] : Extrae el texto legible oculto dentro de un archivo binario.
+
+gunzip [archivo.gz] / tar -xf [archivo.tar] : Descompresión de archivos.
+
+base64 -d : Decodifica cadenas en Base64.
+
+xxd -r : Revierte texto hexadecimal a un archivo binario.
+
+🎯 4. Writeups e Informes de Intrusión (CTFs)
+🏴‍☠️ Máquina: Psycho (DockerLabs) | Dificultad: Media
+Reconocimiento y LFI: Explotación de Local File Inclusion en index.php?secret= para leer /etc/passwd y extraer la clave id_rsa del usuario vaxei.
+
+Acceso Inicial: Conexión vía SSH tras aplicar chmod 600 id_rsa_vaxei.
+
+Movimiento Lateral (Sudo Abuse): El usuario vaxei tenía permisos sudo sobre Perl. Ejecución de sudo -u luisillo /usr/bin/perl -e 'exec "/bin/bash"' para pivotar a luisillo.
+
+Escalada a Root (Library Hijacking): Un script de root (paw.py) importaba la librería os. Al tener permisos de escritura en /opt, creé un script malicioso subprocess.py que fue importado por root al ejecutar el script, logrando una shell con privilegios máximos.
+
+🏴‍☠️ Máquina: Cap (Hack The Box)
+Explotación Web (IDOR): Acceso a capturas de red privadas cambiando la URL de /data/1 a /data/0.
+
+Análisis PCAP: Extracción de credenciales FTP en texto plano usando Wireshark (nathan : Buck3tH4TF0RM3!).
+
+Escalada (Linux Capabilities): Escaneo de capacidades con getcap -r / 2>/dev/null. El binario python3.8 tenía cap_setuid+ep, permitiendo ejecutar os.setuid(0) para obtener root instantáneo.
+
+🧩 Resolución de Protocolos Básicos (Starting Point)
+Meow (Telnet - Puerto 23): Acceso directo con el usuario root sin contraseña.
+
+Fawn (FTP - Puerto 21): Conexión exitosa utilizando el usuario anonymous.
+
+Redeemer (Redis - Puerto 6379): Conexión a la BBDD con redis-cli, enumeración con keys * y lectura con get flag.
+
+Dancing (SMB - Puerto 445): Enumeración de recursos con smbclient -L y acceso a la carpeta WorkShares para descargar la flag.
+
+💉 Cheat Sheet: SQL Injection Básica
+Fase de descubrimiento:
+
+gobuster dir -u http://[IP] -w [wordlist]
+
+Bypass de Login (Usernames válidos):
+
+admin' or 1=1-- - (Estándar)
+
+admin' # (MySQL)
